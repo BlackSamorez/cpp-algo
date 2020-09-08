@@ -6,38 +6,34 @@
 #include <algorithm>
 #include <stdio.h> 
 using namespace std;
+ 
+int main()
+{
+    vector <int> v;
+    int n=0, x;
+ 
+    while ((cin.peek() != '\n'))
+    {
+        cin >> x;
+        n++;
+        v.push_back(x);
+    }
+    sort(v.begin(), v.end());
+    vector<int> delta(n + 1);
 
-bool hit(int x, int y, int kx, int ky){
-	if ((abs(kx - x) == 1 and abs(ky - y) == 2) or (abs(kx - x) == 2 and abs(ky - y) == 1) or (x == kx and y == ky)){
-		return 1;
-	} else {
-		return 0;
-	}
-}
-
-int main() {
-	char c;
-	cin >> c;
-	int x = c - 'a'; // нумерация с 0
-	int y;
-	cin >> y;
-	y = y - 1;
-	vector<vector<int>> ways(9, vector<int> (9, 0));
-	if (not hit(0, 0, x, y)){
-		ways[1][1] = 1;
-	} else {
-		ways[1][1] = 0;
-	}
-	ways[1][1] = 1;
-	for (int i = 1; i < 9; i++){
-		for (int j = 1; j < 9; j++){
-			if (not hit(i - 1, j - 1, x, y)){
-				ways[i][j] += ways[i - 1][j];
-				ways[i][j] += ways[i][j - 1];
-				ways[i][j] += ways[i - 1][j - 1];
-			}
-		}
-	}
-	cout << ways[8][8] << "\n";
-return 0;
+    delta[2] = v[1] - v[0];
+    if (n > 2){
+        delta[3] = v[2] - v[0];
+    }
+ 
+    for (int i = 4;i <= n; i++)
+    {
+        int a; a = delta[i - 2] + v[i - 1] - v[i - 2];
+        int b; b = delta[i - 1] + v[i - 1] - v[i - 2];
+        delta[i] = min(a, b);
+    }
+ 
+    cout << delta[n] << "\n";
+ 
+    return 0;
 }

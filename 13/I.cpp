@@ -7,22 +7,35 @@
 #include <stdio.h> 
 using namespace std;
 
-int main() {
-	string s;
-	getline(cin, s);
-	int n = s.length();
-	vector<int> d1(n);
-	int l=0, r=-1;
-	for (int i=0; i<n; ++i) {
-	  int k = i>r ? 1 : min (d1[l+r-i], r-i+1);
-	  while (i+k < n && i-k >= 0 && s[i+k] == s[i-k])  ++k;
-	  d1[i] = k;
-	  if (i+k-1 > r)
-	    l = i-k+1,  r = i+k-1;
-	}
-	for (int i = 0; i < n; i++){
-		cout << 2 * (d1[i]) - 1 << " ";
-	}
-	cout << "\n";
+
+vector<int> prefix(string s) {
+    int n = (int)s.length();
+    vector<int> p(n);
+    for (int i = 1; i < n; i++) {
+        int j = p[i - 1];
+        while (j > 0 and s[i] != s[j]){
+            j = p[j-1];
+        }
+        if (s[i] == s[j]){
+            j++;
+        }
+        p[i] = j;
+    }
+    return p;
+}
+
+int main()
+{
+    string line;
+    getline(cin, line);
+    vector<int> pi = prefix(line);
+    
+    if (line.length() % (line.length() - pi[line.length() - 1]) == 0){
+        cout << line.length() / (line.length() - pi[line.length() - 1]);
+    }
+    else{
+        cout << 1;
+    }
+    cout << endl;
 return 0;
 }

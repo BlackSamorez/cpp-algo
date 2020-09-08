@@ -1,3 +1,4 @@
+#include <iostream>
 #include <array>
 #include <vector>
 #include <string>
@@ -7,28 +8,18 @@
 #include <stdio.h> 
 using namespace std;
 
+int Sposob(int x, int y, int N)
+{   
+   if (y == 8) return N;
+   if (x==1)
+    return Sposob(2, y+1, N);
+   if (x==8)
+    return Sposob(7, y+1, N);
+  return Sposob(x+1, y+1, N) + Sposob(x-1, y+1, N);
+}
 int main()
-{
-	int n;
-	cin >> n;
-	int st[n];
-	int maxlen = 0;
-	for (int i = 0; i < n; i++){
-		cin >> st[i];
-	}
-	for (int i = 0; i < n; i++){
-		if (st[i] == 1){
-			int maxipos = n;
-			for (int j = 0; j < n; j++){
-				if (st[j] == 2 and abs(i - j) < maxipos){
-					maxipos = abs(i - j);
-				}
-			}
-			if (maxipos > maxlen){
-				maxlen = maxipos;
-			}
-		}
-	}
-	cout << maxlen << "\n";
-return 0;
+{ int x, y;
+    cin >> x >> y;
+    cout << Sposob(x, y, 1) << "\n";
+    return 0;
 }
