@@ -216,6 +216,13 @@ private:
 	    delete [] y;
 	}
 
+	int depth(Node<T>* x){
+		if (x == NIL){
+			return 0;
+		}
+		return (1 + std::max(depth(x->right), depth(x->left)));
+	}
+
 	std::function<bool(T, T)> compLT;
 	std::function<bool(T, T)> compEQ;
 
@@ -304,11 +311,8 @@ public:
 		}
 	}
 
-	int depth(Node<T>* x){
-		if (x == NIL){
-			return 0;
-		}
-		return (1 + std::max(depth(x->right), depth(x->left)));
+	int depth(){
+		return depth(this->root);
 	}
 };
 
