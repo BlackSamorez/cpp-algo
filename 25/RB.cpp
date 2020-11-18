@@ -1,6 +1,11 @@
 #include <iostream>
 #include <functional>
 #include <algorithm>
+#include <stdlib.h>
+#include <chrono>
+#include <cmath>
+
+using namespace std::chrono;
 
 typedef enum {BLACK, RED} nodeColor;
 
@@ -317,14 +322,25 @@ public:
 };
 
 int main(){
-	std::function<bool(int, int)> greater = [](int a, int b){return a>b;}; 
-	Tree<int> t;
-	t.assignLT(greater);
-	for (int i = 0; i < 100; ++i){
-		t.insert((i * i * i + 3 * i + 2) % (i + 5));
-	}
-	for (int i = 0; i < 100; ++i){
-		t.erase((i * i * i + 2 * i + 1) % (i + 3));
+	srand(time(NULL));
+	for (int i = 0; i < 26; ++i){
+		std::function<bool(int, int)> greater = [](int a, int b){return a>b;}; 
+		Tree<int> t;
+		t.assignLT(greater);
+
+		for (int j = 0; j < std::pow(2, i); ++j){
+			t.insert(std::rand());
+		}
+
+		auto start = steady_clock::now();
+		for (int j = 0; j < 1000000; ++j){
+			t.insert(std::rand());
+			t.erase(std::rand());
+		}
+		auto end = steady_clock::now();
+		auto elapsed = duration_cast<milliseconds>(end - start);
+
+		std::cout << i << ";" << elapsed.count() << "\n";
 	}
 return 0;
 }
