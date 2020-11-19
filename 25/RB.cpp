@@ -4,6 +4,10 @@
 #include <stdlib.h>
 #include <chrono>
 #include <cmath>
+#include <vector>
+#include <random>
+#include <fstream>
+
 
 using namespace std::chrono;
 
@@ -231,6 +235,14 @@ private:
 	std::function<bool(T, T)> compLT;
 	std::function<bool(T, T)> compEQ;
 
+	void kill_kids_then_myself(Node<T>* x){
+		if (x != NIL){
+			kill_kids_then_myself(x->left);
+			kill_kids_then_myself(x->right);
+			delete [] x;
+		}
+	}
+
 public:
 	void assignLT(std::function<bool(T, T)> f){
 		this->compLT = f;
@@ -262,6 +274,11 @@ public:
 		NIL->data = 0;
 		compLT = [](T a, T b){return a < b;};
 		compEQ = [](T a, T b){return a == b;};
+	}
+
+	~Tree(){
+		kill_kids_then_myself(root);
+		delete [] NIL;
 	}
 
 	bool present(T data){
@@ -321,10 +338,13 @@ public:
 	}
 };
 
-int main(){
-	srand(time(NULL));
+void test_insert_time(){
+	std::cout << "INSERT\n";
+	std::ofstream myfile;
+  	myfile.open ("INSERT.txt");
+  	myfile << "INSERT\n";
 	for (int i = 0; i < 26; ++i){
-		std::function<bool(int, int)> greater = [](int a, int b){return a>b;}; 
+		std::function<bool(int, int)> greater = [](int a, int b){return a>b;};
 		Tree<int> t;
 		t.assignLT(greater);
 
@@ -333,14 +353,83 @@ int main(){
 		}
 
 		auto start = steady_clock::now();
-		for (int j = 0; j < 1000000; ++j){
+		for (int j = 0; j < 10000; ++j){
 			t.insert(std::rand());
-			t.erase(std::rand());
 		}
 		auto end = steady_clock::now();
-		auto elapsed = duration_cast<milliseconds>(end - start);
+		auto elapsed = duration_cast<microseconds>(end - start);
 
-		std::cout << i << ";" << elapsed.count() << "\n";
+		myfile << elapsed.count() << "\n";
 	}
+	myfile.close();
+}
+
+void test_erase_time(){
+	std::cout << "ERASE\n";
+	std::ofstream myfile;
+  	myfile.open ("ERASE.txt");
+  	myfile << "ERASE\n";
+	for (int i = 0; i < 26; ++i){
+		std::function<bool(int, int)> greater = [](int a, int b){return a>b;};
+		Tree<int> t;
+		t.assignLT(greater);
+
+		std::vector<int> numbers(std::pow(2, i), 0);
+		for (int j = 0; j < std::pow(2, i); ++j){
+			int a = std::rand();
+			t.insert(a);
+			numbers[j] = a;
+		}
+		auto rng = std::default_random_engine {};
+		std::shuffle(std::begin(numbers), std::end(numbers), rng);
+
+		auto start = steady_clock::now();
+		for (int j = 0; j < 10000 && j < std::pow(2, i); ++j){
+			t.erase(numbers[j]);
+		}
+		auto end = steady_clock::now();
+		auto elapsed = duration_cast<microseconds>(end - start);
+
+		myfile << elapsed.count() << "\n";
+	}
+	myfile.close();
+}
+
+void test_find_time(){
+	std::cout << "FIND\n";
+	std::ofstream myfile;
+  	myfile.open ("FIND.txt");
+  	myfile << "FIND\n";
+	for (int i = 0; i < 26; ++i){
+		std::function<bool(int, int)> greater = [](int a, int b){return a>b;};
+		Tree<int> t;
+		t.assignLT(greater);
+
+		std::vector<int> numbers(std::pow(2, i), 0);
+		for (int j = 0; j < std::pow(2, i); ++j){
+			int a = std::rand();
+			t.insert(a);
+			numbers[j] = a;
+		}
+		auto rng = std::default_random_engine {};
+		std::shuffle(std::begin(numbers), std::end(numbers), rng);
+
+		auto start = steady_clock::now();
+		for (int j = 0; j < 10000 && j < std::pow(2, i); ++j){
+			t.present(numbers[j]);
+		}
+		auto end = steady_clock::now();
+		auto elapsed = duration_cast<microseconds>(end - start);
+
+		myfile << elapsed.count() << "\n";
+	}
+	myfile.close();
+}
+
+int main(){
+	srand(time(NULL));
+	test_erase_time();
+	test_insert_time();
+	test_find_time();
 return 0;
 }
