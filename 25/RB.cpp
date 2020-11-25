@@ -338,98 +338,140 @@ public:
 	}
 };
 
-void test_insert_time(){
-	std::cout << "INSERT\n";
-	std::ofstream myfile;
-  	myfile.open ("INSERT.txt");
-  	myfile << "INSERT\n";
-	for (int i = 0; i < 26; ++i){
-		std::function<bool(int, int)> greater = [](int a, int b){return a>b;};
-		Tree<int> t;
-		t.assignLT(greater);
 
-		for (int j = 0; j < std::pow(2, i); ++j){
-			t.insert(std::rand());
+
+template <typename T>
+class Profiler{
+private:
+	void test_insert_time(){
+		if (!silent){
+			std::cout << "INSERT\n";
 		}
+		std::ofstream myfile;
+		std::string insertion = folder + "/INSERT.txt";
+	  	myfile.open (insertion);
+	  	myfile << "INSERT\n";
+		for (int i = 0; i < power_two; ++i){
+			if (!silent){
+				std::cout << i << "th step out of " << power_two << "\n";
+			}
+			std::function<bool(int, int)> greater = [](int a, int b){return a>b;};
+			Tree<T> t;
+			t.assignLT(greater);
 
-		auto start = steady_clock::now();
-		for (int j = 0; j < 10000; ++j){
-			t.insert(std::rand());
+			for (int j = 0; j < std::pow(2, i); ++j){
+				t.insert(std::rand());
+			}
+
+			auto start = steady_clock::now();
+			for (int j = 0; j < test_iter; ++j){
+				t.insert(std::rand());
+			}
+			auto end = steady_clock::now();
+			auto elapsed = duration_cast<microseconds>(end - start);
+
+			myfile << elapsed.count() << "\n";
 		}
-		auto end = steady_clock::now();
-		auto elapsed = duration_cast<microseconds>(end - start);
-
-		myfile << elapsed.count() << "\n";
+		myfile.close();
 	}
-	myfile.close();
-}
 
-void test_erase_time(){
-	std::cout << "ERASE\n";
-	std::ofstream myfile;
-  	myfile.open ("ERASE.txt");
-  	myfile << "ERASE\n";
-	for (int i = 0; i < 26; ++i){
-		std::function<bool(int, int)> greater = [](int a, int b){return a>b;};
-		Tree<int> t;
-		t.assignLT(greater);
-
-		std::vector<int> numbers(std::pow(2, i), 0);
-		for (int j = 0; j < std::pow(2, i); ++j){
-			int a = std::rand();
-			t.insert(a);
-			numbers[j] = a;
+	void test_erase_time(){
+		if (!silent){
+			std::cout << "ERASE\n";
 		}
-		auto rng = std::default_random_engine {};
-		std::shuffle(std::begin(numbers), std::end(numbers), rng);
+		std::ofstream myfile;
+	  	std::string erasal = folder + "/ERASE.txt";
+	  	myfile.open (erasal);
+	  	myfile << "ERASE\n";
+		for (int i = 0; i < power_two; ++i){
+			if (!silent){
+				std::cout << i << "th step out of " << power_two << "\n";
+			}
+			std::function<bool(int, int)> greater = [](int a, int b){return a>b;};
+			Tree<T> t;
+			t.assignLT(greater);
 
-		auto start = steady_clock::now();
-		for (int j = 0; j < 10000 && j < std::pow(2, i); ++j){
-			t.erase(numbers[j]);
+			std::vector<int> numbers(std::pow(2, i), 0);
+			for (int j = 0; j < std::pow(2, i); ++j){
+				int a = std::rand();
+				t.insert(a);
+				numbers[j] = a;
+			}
+			auto rng = std::default_random_engine {};
+			std::shuffle(std::begin(numbers), std::end(numbers), rng);
+
+			auto start = steady_clock::now();
+			for (int j = 0; j < test_iter && j < std::pow(2, i); ++j){
+				t.erase(numbers[j]);
+			}
+			auto end = steady_clock::now();
+			auto elapsed = duration_cast<microseconds>(end - start);
+
+			myfile << elapsed.count() << "\n";
 		}
-		auto end = steady_clock::now();
-		auto elapsed = duration_cast<microseconds>(end - start);
-
-		myfile << elapsed.count() << "\n";
+		myfile.close();
 	}
-	myfile.close();
-}
 
-void test_find_time(){
-	std::cout << "FIND\n";
-	std::ofstream myfile;
-  	myfile.open ("FIND.txt");
-  	myfile << "FIND\n";
-	for (int i = 0; i < 26; ++i){
-		std::function<bool(int, int)> greater = [](int a, int b){return a>b;};
-		Tree<int> t;
-		t.assignLT(greater);
-
-		std::vector<int> numbers(std::pow(2, i), 0);
-		for (int j = 0; j < std::pow(2, i); ++j){
-			int a = std::rand();
-			t.insert(a);
-			numbers[j] = a;
+	void test_find_time(){
+		if (!silent){
+			std::cout << "FIND\n";
 		}
-		auto rng = std::default_random_engine {};
-		std::shuffle(std::begin(numbers), std::end(numbers), rng);
+		std::ofstream myfile;
+	  	std::string finding = folder + "/FIND.txt";
+	  	myfile.open (finding);
+	  	myfile << "FIND\n";
+		for (int i = 0; i < power_two; ++i){
+			if (!silent){
+				std::cout << i << "th step out of " << power_two << "\n";
+			}
+			std::function<bool(int, int)> greater = [](int a, int b){return a>b;};
+			Tree<T> t;
+			t.assignLT(greater);
 
-		auto start = steady_clock::now();
-		for (int j = 0; j < 10000 && j < std::pow(2, i); ++j){
-			t.present(numbers[j]);
+			std::vector<int> numbers(std::pow(2, i), 0);
+			for (int j = 0; j < std::pow(2, i); ++j){
+				int a = std::rand();
+				t.insert(a);
+				numbers[j] = a;
+			}
+			auto rng = std::default_random_engine {};
+			std::shuffle(std::begin(numbers), std::end(numbers), rng);
+
+			auto start = steady_clock::now();
+			for (int j = 0; j < test_iter && j < std::pow(2, i); ++j){
+				t.present(numbers[j]);
+			}
+			auto end = steady_clock::now();
+			auto elapsed = duration_cast<microseconds>(end - start);
+
+			myfile << elapsed.count() << "\n";
 		}
-		auto end = steady_clock::now();
-		auto elapsed = duration_cast<microseconds>(end - start);
-
-		myfile << elapsed.count() << "\n";
+		myfile.close();
 	}
-	myfile.close();
-}
+
+public:
+	bool silent;
+	int power_two;
+	std::string folder;
+	int test_iter;
+
+	void test(){
+		srand(time(NULL));
+		test_erase_time();
+		test_insert_time();
+		test_find_time();
+	}
+
+	Profiler(){
+		silent = false;
+		power_two = 26;
+		folder = "./";
+		test_iter = 10000;
+	}
+};
 
 int main(){
-	srand(time(NULL));
-	test_erase_time();
-	test_insert_time();
-	test_find_time();
+	Profiler<int> pfl;
+	pfl.test();
 return 0;
 }
